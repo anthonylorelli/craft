@@ -50,6 +50,11 @@ class Interpreter implements Expr.Visitor<Object> {
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
 
+    private void checkDivByZero(Token operator, Object denom) {
+        if ((Double)denom != 0) { return; }
+        throw new RuntimeError(operator, "Cannot divide by zero.");
+    }
+
     private boolean isTruthy(Object object) {
         if (object == null) { return false; }
         if (object instanceof Boolean) { return (boolean)object; }
@@ -86,14 +91,15 @@ class Interpreter implements Expr.Visitor<Object> {
                     return (double)left + (double)right;
                 } 
                 
-                if (left instanceof String && right instanceof String) {
-                    return (String)left + (String)right;
+                if (left instanceof String || right instanceof String) {
+                    return left.toString() + right.toString();
                 }
 
                 throw new RuntimeError(expr.operator, 
                     "Operands must be two numbers or two strings.");
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
+                checkDivByZero(expr.operator, right);
                 return (double)left / (double)right;
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
