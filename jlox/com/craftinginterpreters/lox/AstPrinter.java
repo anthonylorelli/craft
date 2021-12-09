@@ -22,6 +22,17 @@ class AstPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitLogicalExpr(Expr.Logical expr) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(expr.left.accept(this));
+        builder.append(expr.operator.type == TokenType.OR ? " or " : " and ");
+        builder.append(expr.right.accept(this));
+
+        return builder.toString();
+    }
+
+    @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
     }
