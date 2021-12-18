@@ -30,6 +30,10 @@ class Environment {
             "Undefined variable '" + name.lexeme + "'.");
     }
 
+    void assignAt(int distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
     Environment ancestor(int distance) {
         Environment environment = this;
         for (int i = 0; i < distance; i++) {
