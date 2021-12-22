@@ -70,6 +70,59 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitAssignExpr(Expr.Assign expr) {
+        Object value = evaluate(expr.value);
+
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value);
+        } else {
+            globals.assign(expr.name, value);
+        }
+
+        return value;
+    }
+
+    @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        Object callee = evaluate(expr.callee);
+
+        List<Object> arguments = new ArrayList<>();
+        for (Expr argument : expr.arguments) {
+            arguments.add(evaluate(argument));
+        }
+
+        if (!(callee instanceof LoxCallable)) {
+            throw new RuntimeError(expr.paren,
+                "Can only call functions and classes.");
+        }
+
+        LoxCallable function = (LoxCallable)callee;
+        if (arguments.size() != function.arity()) {
+            throw new RuntimeError(expr.paren, "Expected " +
+                function.arity() + " arguments but got " + 
+                arguments.size() + ".");
+        }
+        
+        return function.call(this, arguments);
+    }
+
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        Object object = evaluate(expr.object);
+        if (object instanceof LoxInstance) {
+            return ((LoxInstance)object).get(expr.name);
+        }
+
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+
+    @Override
+    public Object visitLiteralExpr(Expr.Literal expr) {
+        return expr.value;
+    }
+
+    @Override
     public Object visitLogicalExpr(Expr.Logical expr) {
         Object left = evaluate(expr.left);
 
@@ -80,6 +133,19 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         return evaluate(expr.right);
+    }
+
+    @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        Object object = evaluate(expr.object);
+
+        if (!(object instanceof LoxInstance)) {
+            throw new RuntimeError(expr.name, "Only instances have fields.");
+        }
+
+        Object value = evaluate(expr.value);
+        ((LoxInstance)object).set(expr.name, value);
+        return value;
     }
 
     @Override
@@ -145,59 +211,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         environment.define(stmt.name.lexeme, value);
         return null;
-    }
-
-    @Override
-    public Object visitAssignExpr(Expr.Assign expr) {
-        Object value = evaluate(expr.value);
-
-        Integer distance = locals.get(expr);
-        if (distance != null) {
-            environment.assignAt(distance, expr.name, value);
-        } else {
-            globals.assign(expr.name, value);
-        }
-
-        return value;
-    }
-
-    @Override
-    public Object visitCallExpr(Expr.Call expr) {
-        Object callee = evaluate(expr.callee);
-
-        List<Object> arguments = new ArrayList<>();
-        for (Expr argument : expr.arguments) {
-            arguments.add(evaluate(argument));
-        }
-
-        if (!(callee instanceof LoxCallable)) {
-            throw new RuntimeError(expr.paren,
-                "Can only call functions and classes.");
-        }
-
-        LoxCallable function = (LoxCallable)callee;
-        if (arguments.size() != function.arity()) {
-            throw new RuntimeError(expr.paren, "Expected " +
-                function.arity() + " arguments but got " + 
-                arguments.size() + ".");
-        }
-        
-        return function.call(this, arguments);
-    }
-
-    @Override
-    public Object visitGetExpr(Expr.Get expr) {
-        Object object = evaluate(expr.object);
-        if (object instanceof LoxInstance) {
-            return ((LoxInstance)object).get(expr.name);
-        }
-
-        throw new RuntimeError(expr.name, "Only instances have properties.");
-    }
-
-    @Override
-    public Object visitLiteralExpr(Expr.Literal expr) {
-        return expr.value;
     }
 
     @Override
