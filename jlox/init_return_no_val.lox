@@ -1,0 +1,9 @@
+class Bar {
+    init() {
+        print "Start init()";
+        return;
+        print "End init()";
+    }
+}
+
+Bar();
