@@ -1,0 +1,7 @@
+class Foo {
+    init() {
+        super.Bar();
+    }
+}
+
+Foo();
