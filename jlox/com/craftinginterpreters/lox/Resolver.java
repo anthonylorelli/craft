@@ -43,6 +43,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         declare(stmt.name);
         define(stmt.name);
+        if (stmt.superClass != null &&
+            stmt.name.lexeme.equals(stmt.superClass.name.lexeme)) {
+            Lox.error(stmt.superClass.name, "A class can't inherit from itself.");
+        }
+
+        if (stmt.superClass != null) {
+            resolve(stmt.superClass);
+        }
 
         beginScope();
         scopes.peek().put("this", true);
@@ -100,7 +108,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             if (currentFunction == FunctionType.INITIALIZER) {
                 Lox.error(stmt.keyword, "Can't return a value from an initializer.");
             }
-            
+
             resolve(stmt.value);
         }
 
