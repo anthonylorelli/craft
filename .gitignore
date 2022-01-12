@@ -3,3 +3,6 @@
 
 # Ignore locally-built executables
 **/*.exe
+
+# Ignore VSCode settings dirs
+**/.vscode/*
