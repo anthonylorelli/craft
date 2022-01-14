@@ -28,7 +28,7 @@ static char* readFile(const char* path) {
         exit(74);
     }
 
-    fseek(file, 0L, SEEK_SET);
+    fseek(file, 0L, SEEK_END);
     size_t fileSize = ftell(file);
     rewind(file);
 
@@ -39,7 +39,7 @@ static char* readFile(const char* path) {
     }
     size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
     if (bytesRead < fileSize) {
-        fprintf(stderr, "Cold not read file \"%s\".\n", path);
+        fprintf(stderr, "Could not read file \"%s\".\n", path);
         exit(74);
     }
     buffer[bytesRead] = '\0';
