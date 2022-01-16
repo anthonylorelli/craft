@@ -115,6 +115,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
                        offset - 2, isLocal ? "local" : "upvalue", index);
             }
             return offset;
+        case OP_CLOSE_UPVALUE:
+            return simpleInstruction("OP_CLOSE_UPVALUE", offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:
