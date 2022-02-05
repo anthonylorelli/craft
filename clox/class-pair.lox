@@ -1,0 +1,13 @@
+class Pair {
+    init() {
+        this.first = 1;
+        this.second = 2;
+    }
+
+    sum() {
+        print this.first + this.second;
+    }
+}
+
+var pair = Pair();
+pair.sum();
