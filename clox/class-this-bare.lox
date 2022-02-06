@@ -1,5 +1,0 @@
-print this;
-
-fun notMethod() {
-    print this;
-}
