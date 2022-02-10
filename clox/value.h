@@ -1,10 +1,46 @@
 #ifndef clox_value_h
 #define clox_value_h
 
+#include <string.h>
+
 #include "common.h"
 
 typedef struct Obj Obj;
 typedef struct ObjString ObjString;
+
+#ifdef NAN_BOXING
+
+#define QNAN ((uint64_t)0x7ffc000000000000)
+
+#define TAG_NIL 1
+#define TAG_FALSE 2
+#define TAG_TRUE 3
+
+typedef uint64_t Value;
+
+#define IS_NIL(value)    ((value) == NIL_VAL)
+#define IS_NUMBER(value) (((value) & QNAN) != QNAN)
+
+#define AS_NUMBER(value) valueToNum(value)
+
+static inline double valueToNum(Value value) {
+    double num;
+    memcpy(&num, &value, sizeof(Value));
+    return num;
+}
+
+#define FALSE_VAL       ((Value)(uint64_t)(QNAN | TAG_FALSE))
+#define TRUE_VAL        ((Value)(uint64_t)(QNAN | TAG_TRUE))
+#define NIL_VAL         ((Value)(uint64_t)(QNAN | TAG_NIL))
+#define NUMBER_VAL(num) numToValue(num)
+
+static inline Value numToValue(double num) {
+    Value value;
+    memcpy(&value, &num, sizeof(double));
+    return value;
+}
+
+#else
 
 typedef enum {
     VAL_BOOL,
@@ -35,6 +71,8 @@ typedef struct {
 #define NIL_VAL ((Value){VAL_NIL, {.number = 0}})
 #define NUMBER_VAL(value) ((Value){VAL_NUMBER, {.number = value}})
 #define OBJ_VAL(object) ((Value){VAL_OBJ, {.obj = (Obj*)object}})
+
+#endif
 
 typedef struct {
     int capacity;
