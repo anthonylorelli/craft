@@ -10,3 +10,4 @@ class Oops {
 
 var oops = Oops();
 print oops;
+oops.field();
